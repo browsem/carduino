@@ -2,6 +2,7 @@
 
 #include <SoftSerial.h>
 #include <TinyPinChange.h>
+
  
 #define DEBUG_TX_RX_PIN         2 //Adjust here your Tx/Rx debug pin
  
@@ -29,9 +30,11 @@ byte SteeringWheel[4] = {0,0,0};
 byte commandbuffer[7] ;
 int k;
 int ChkSum;
+int FlipFlop=0;
  
 void setup()
 {
+  Serial.begin(9600);
   MyDbgSerial.begin(38400); //After MyDbgSerial.begin(), the serial port is in rxMode by default
   MyDbgSerial.txMode(); //Before sending a message, switch to txMode
   MyDbgSerial.println(F("\nDebug enabled"));
@@ -46,28 +49,43 @@ void setup()
  
 void loop()
 {
+  // Serial.print("1");
   //every * milliseconds
 if (millis()-Timer >=100) {  
   Timer=millis();
-  if(MyDbgSerial.available()) // if softserial is availabe
-  {
+ //  Serial.print("2");
+ // if(MyDbgSerial.available()) // if softserial is availabe
+ // {
     MyDbgSerial.txMode();  //switch to send mode
+    if (FlipFlop <50)  {
     MyDbgSerial.write(1); //send a command number
+    FlipFlop++;
+    }
+    else if (FlipFlop >100)  {
+    FlipFlop=0;
+    }
+    else
+    {
+    MyDbgSerial.write(2);
+    FlipFlop++;
+    }
+ //   Serial.print("3");
     MyDbgSerial.print('\n'); //send a newline
     MyDbgSerial.rxMode(); //change to recieve mode
-  }
+  //}
 }
 k=0;
 //empty command buffer
 for (k=0;k<5 ;k=k+1){
   commandbuffer[k] =0;
+  //Serial.print(commandbuffer[k]-'0'); 
   }
 //Fill command buffer, if theres anything there
-while( MyDbgSerial.available() ) {
+while( MyDbgSerial.available()>0) {
+     
    commandbuffer[k++] = MyDbgSerial.read();
-   if (commandbuffer[0] != 9) {
-     k=0;
-   }
+   Serial.print(commandbuffer[k]);
+   
  }
 
 //test buffer
@@ -77,6 +95,7 @@ if ((commandbuffer[0]==9) &&commandbuffer[1]==9){
   if (ChkSum==commandbuffer[5]) {
     for (k=0;k<2 ;k=k+1){
       SteeringWheel[k]=commandbuffer[k+2];
+      
     }
   }
 }

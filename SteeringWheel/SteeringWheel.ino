@@ -28,7 +28,7 @@ SoftSerial MyDbgSerial(DEBUG_TX_RX_PIN, DEBUG_TX_RX_PIN, true); //true allows to
 void setup()
 {
   MyDbgSerial.begin(38400); //After MyDbgSerial.begin(), the serial port is in rxMode by default
-d
+
 //  MyDbgSerial.txMode(); //Before sending a message, switch to txMode
  
 //  MyDbgSerial.rxMode(); //switch to rxMode to be ready to receive some commands
