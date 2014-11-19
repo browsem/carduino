@@ -9,20 +9,21 @@
 const int analogInPinH = 1; 
 const int analogInPinV = 0;
 int LedV = 0;
-
+//int LedV = 1;
 
 //Variables
 int sensorValueH = 0;
 int sensorValueV = 0; 
 int inByte = 0;         // incoming serial byte
-byte SendSer[6] ;
+int SendSer[6] ;
 int i;
 
 //setup seriel comm
 
-#define DEBUG_TX_RX_PIN         1 //Adjust here your Tx/Rx debug pin
+#define DEBUG_TX_RX_PIN         1
+//#define DEBUG_TX_RX_PIN         0 //Adjust here your Tx/Rx debug pin
 
-SoftSerial MyDbgSerial(DEBUG_TX_RX_PIN, DEBUG_TX_RX_PIN, true); //true allows to connect to a regular RS232 without RS232 line driver
+SoftSerial MyDbgSerial(DEBUG_TX_RX_PIN, DEBUG_TX_RX_PIN, false); //true allows to connect to a regular RS232 without RS232 line driver
 
 
 void setup()
@@ -41,7 +42,7 @@ void loop(){
 inByte=0;
  if(MyDbgSerial.available())
   {
-   inByte= MyDbgSerial.read(); 
+   inByte= MyDbgSerial.read()-48; 
   }
   //command byte != 0 ;
   if (inByte == 1) {
@@ -54,8 +55,8 @@ inByte=0;
   // read the analog in value:
   sensorValueH = analogRead(analogInPinH);            
   sensorValueV = analogRead(analogInPinV);
-  SendSer[0]==9;
-  SendSer[1]==9;
+  SendSer[0]=9;
+  SendSer[1]=9;
   // map it to the range of the analog out:
 //  outputValue = map(sensorValueH, 0, 1023, 0, 255);  
   if ((781 < sensorValueH) and (sensorValueH < 1000)){
@@ -106,13 +107,16 @@ inByte=0;
    else {
    SendSer[4]=0;
    }
-  SendSer[5]=SendSer[2]+SendSer[3]+SendSer[4];
+  SendSer[5]=SendSer[2]+SendSer[3]+SendSer[4]+9;
 
 if (inByte != 0) {
 MyDbgSerial.txMode(); //Before sending a message, switch to txMode
-  for (i=0;i<5 ;i=i+1){
-    MyDbgSerial.write(SendSer[i]);    
+  // 
+  for (i=0;i<6 ;i=i+1){
+    MyDbgSerial.print(SendSer[i]);
+    MyDbgSerial.print(",");    
     }
+    MyDbgSerial.println();
 MyDbgSerial.rxMode(); //switch to rxMode to be ready to receive some commands
 
 }  
